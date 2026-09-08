@@ -39,8 +39,13 @@ td.audioCell{white-space:nowrap}
 .kitAdd button{height:32px;border:1px solid #bbb;border-radius:6px;background:#fff;cursor:pointer;padding:0 12px;font:inherit}
 .kitAdd button:hover{background:#f3f3f3}
 .kitNote{color:#777;font-size:12px;margin:8px 0 0;min-height:1.2em}
+.tabs{display:flex;gap:6px;flex-shrink:0}
+.tabs a{color:#555;text-decoration:none;border:1px solid #ccc;background:#fff;border-radius:999px;padding:5px 10px;font-size:13px}
+.tabs a.on{background:#222;color:#fff;border-color:#222}
 </style>
-<div class="wrap"><div class="top"><h1>🐦 Bird Whistle Trainer</h1><input id="search" placeholder="Szukaj ptaka…"><div class="info">zapis automatyczny</div></div>
+<div class="wrap"><div class="top"><h1>🐦 Bird Whistle Trainer</h1>
+<nav class="tabs"><a class="on" href="index.html">Gwizdy</a><a href="lista.html">Lista Polski</a></nav>
+<input id="search" placeholder="Szukaj ptaka…"><div class="info">zapis automatyczny</div></div>
 <div class="box"><table><thead><tr><th>Ptak</th><th>▶</th><th>Whistle'e</th><th>Pattern</th><th>Uwagi</th><th>Status</th><th>XC</th></tr></thead><tbody><tr data-search="Strzyżyk Troglodytes troglodytes">
 <td class="bird">Strzyżyk<span>Troglodytes troglodytes</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="913172">▶</button><audio preload="metadata" src="audio/913172.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>

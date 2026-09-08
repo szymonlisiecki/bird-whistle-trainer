@@ -1,0 +1,279 @@
+<!doctype html><html lang="pl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lista Polski · Bird Whistle Trainer</title>
+<meta name="theme-color" content="#f5f5f5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bird Whistle">
+<link rel="manifest" href="manifest.json">
+<style>
+body{margin:0;background:#f5f5f5;color:#222;font:14px system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:720px;margin:20px auto;padding:0 16px}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+h1{font-size:20px;margin:0 8px 0 0}
+.tabs{display:flex;gap:6px}
+.tabs a{color:#555;text-decoration:none;border:1px solid #ccc;background:#fff;border-radius:999px;padding:5px 10px;font-size:13px}
+.tabs a.on{background:#222;color:#fff;border-color:#222}
+#search{flex:1;min-width:160px;padding:8px;border:1px solid #ccc;border-radius:6px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.filters button{border:1px solid #ccc;background:#fff;border-radius:999px;padding:5px 10px;font:inherit;cursor:pointer}
+.filters button.on{background:#222;color:#fff;border-color:#222}
+.info{color:#777;font-size:12px;margin:0 0 12px}
+.list{background:#fff;border:1px solid #d5d5d5;border-radius:7px;overflow:hidden}
+.row{border-bottom:1px solid #eee;padding:10px 12px}
+.row:last-child{border-bottom:0}
+.head{display:flex;gap:10px;align-items:flex-start}
+.play{flex:0 0 34px;width:34px;height:34px;border:1px solid #bbb;border-radius:5px;background:#fff;cursor:pointer}
+.play:hover{background:#eee}
+.play:disabled{opacity:.4;cursor:default}
+.meta{flex:1;min-width:0}
+.bird{font-weight:650}
+.bird span{display:block;font-size:12px;font-style:italic;color:#888;font-weight:400}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;align-items:center}
+.tag{font-size:11px;color:#666;background:#f3f3f3;border-radius:999px;padding:2px 7px}
+.more{margin-top:8px;display:none}
+.row.open .more{display:block}
+.recs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.recs button{border:1px solid #ccc;background:#fff;border-radius:6px;padding:4px 8px;font:12px inherit;cursor:pointer}
+.recs button.on{border-color:#222;background:#222;color:#fff}
+.waveWrap{display:flex;align-items:center;gap:8px}
+.wave{width:100%;max-width:420px;height:38px;border:1px solid #ddd;border-radius:4px;background:#fafafa;cursor:pointer}
+.time{font-size:10px;color:#777;white-space:nowrap}
+.notes{margin-top:8px;width:100%;border:1px solid #ddd;border-radius:4px;padding:6px 8px;font:inherit;box-sizing:border-box}
+.heard{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;margin-top:8px}
+a{color:#555}
+.foot{padding:10px 0 24px;color:#777;font-size:12px}
+.empty{padding:18px;color:#777;text-align:center}
+</style>
+<div class="wrap">
+  <div class="top">
+    <h1>Lista Polski</h1>
+    <nav class="tabs">
+      <a href="index.html">Gwizdy</a>
+      <a class="on" href="lista.html">Lista Polski</a>
+    </nav>
+    <input id="search" placeholder="Szukaj ptaka…">
+  </div>
+  <div class="filters">
+    <button type="button" data-f="all" class="on">Wszystkie</button>
+    <button type="button" data-f="L">Lęgowe</button>
+    <button type="button" data-f="P">Przelotne</button>
+    <button type="button" data-f="Z">Zalatujące</button>
+    <button type="button" data-f="audio">Z nagraniem</button>
+  </div>
+  <p class="info" id="count"></p>
+  <div class="list" id="list"><div class="empty">Ładuję listę…</div></div>
+  <div class="foot">Lista gatunków: <a href="https://komisjafaunistyczna.pl/lista/" target="_blank" rel="noreferrer">Komisja Faunistyczna</a>, stan z 01.06.2026. Nagrania: <a href="https://xeno-canto.org/" target="_blank" rel="noreferrer">xeno-canto</a>. Osobno od listy gwizdów.</div>
+</div>
+<script>
+const KEY="bird-lista-kf-v1";
+const saved=JSON.parse(localStorage.getItem(KEY)||"{}");
+function persist(){localStorage.setItem(KEY,JSON.stringify(saved))}
+function fmt(sec){
+  if(!isFinite(sec)||sec<0) return "0:00";
+  const m=Math.floor(sec/60), s=Math.floor(sec%60).toString().padStart(2,"0");
+  return m+":"+s;
+}
+function titlePl(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s}
+function statusLabel(st){
+  if(/L/.test(st)) return "lęgowy";
+  if(/P/.test(st)) return "przelotny";
+  if(/z/i.test(st)) return "zalatujący";
+  return st;
+}
+function audioUrl(xc){
+  return "https://xeno-canto.org/"+xc+"/download";
+}
+
+let filter="all", query="";
+let birds=[];
+let current=null;
+
+function decodeBuffer(buf){
+  const Ctx=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  const offline=new Ctx(1,128,44100);
+  return offline.decodeAudioData(buf.slice(0));
+}
+
+function setupPlayer(rowEl, bird){
+  const btn=rowEl.querySelector(".play");
+  const audio=rowEl.querySelector("audio");
+  const canvas=rowEl.querySelector(".wave");
+  const time=rowEl.querySelector(".time");
+  const recs=rowEl.querySelector(".recs");
+  const ctx=canvas.getContext("2d");
+  let peaks=null, loadPromise=null, xc=null;
+
+  function draw(progress=0){
+    const w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle="#f7f7f7"; ctx.fillRect(0,0,w,h);
+    if(!peaks){
+      ctx.strokeStyle="#cfcfcf"; ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+      return;
+    }
+    const step=peaks.length/w;
+    for(let x=0;x<w;x++){
+      const i=Math.floor(x*step), amp=peaks[i]||0;
+      ctx.fillStyle=x/w<=progress ? "#555" : "#bdbdbd";
+      const hh=Math.max(2,amp*(h-5));
+      ctx.fillRect(x,(h-hh)/2,1,hh);
+    }
+  }
+  function loadWave(){
+    if(loadPromise) return loadPromise;
+    loadPromise=(async()=>{
+      const r=await fetch(audio.src);
+      if(!r.ok) throw new Error("audio");
+      const buf=await r.arrayBuffer();
+      const decoded=await decodeBuffer(buf);
+      const ch=decoded.getChannelData(0), n=220, block=Math.max(1,Math.floor(ch.length/n));
+      peaks=Array.from({length:n},(_,i)=>{
+        let max=0, start=i*block, end=Math.min(ch.length,start+block);
+        for(let j=start;j<end;j++) max=Math.max(max,Math.abs(ch[j]));
+        return max;
+      });
+      draw(audio.duration?audio.currentTime/audio.duration:0);
+    })().catch(()=>{ loadPromise=null; draw(0); });
+    return loadPromise;
+  }
+  function setRec(rec, play){
+    xc=rec.xc;
+    peaks=null; loadPromise=null;
+    audio.src=audioUrl(rec.xc);
+    audio.preload="none";
+    recs.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.xc===rec.xc));
+    time.textContent="0:00 / "+(rec.length?fmt(rec.length):"0:00");
+    draw(0);
+    if(play) btn.click();
+  }
+
+  (bird.recordings||[]).forEach((rec,i)=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.dataset.xc=rec.xc;
+    const kind=rec.type && rec.type!=="unknown"?rec.type:"nagranie";
+    b.textContent=(i+1)+". "+kind+(rec.country?" · "+rec.country:"");
+    b.onclick=()=>setRec(rec, true);
+    recs.appendChild(b);
+  });
+  const link=document.createElement("a");
+  link.href="https://xeno-canto.org/explore?query="+encodeURIComponent(bird.latin);
+  link.target="_blank";
+  link.rel="noreferrer";
+  link.textContent="więcej na xeno-canto";
+  recs.appendChild(link);
+
+  btn.onclick=()=>{
+    if(!xc) return;
+    document.querySelectorAll("audio").forEach(x=>{if(x!==audio){x.pause();x.currentTime=0}});
+    document.querySelectorAll(".play").forEach(b=>{if(b!==btn) b.textContent="▶"});
+    if(audio.paused){
+      loadWave();
+      audio.play().then(()=>btn.textContent="❚❚").catch(()=>alert("Nie da się odtworzyć XC"+xc+". Spróbuj innego nagrania albo otwórz xeno-canto."));
+    }else{
+      audio.pause();
+      btn.textContent="▶";
+    }
+  };
+  audio.addEventListener("loadedmetadata",()=>{
+    time.textContent=fmt(audio.currentTime)+" / "+fmt(audio.duration);
+  });
+  audio.addEventListener("timeupdate",()=>{
+    time.textContent=fmt(audio.currentTime)+" / "+fmt(audio.duration);
+    draw(audio.duration?audio.currentTime/audio.duration:0);
+  });
+  audio.onended=()=>{btn.textContent="▶";draw(0)};
+  const seek=ev=>{
+    if(!audio.duration) return;
+    const r=canvas.getBoundingClientRect();
+    audio.currentTime=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*audio.duration;
+  };
+  canvas.addEventListener("click",seek);
+  draw(0);
+  if(bird.recordings&&bird.recordings[0]) setRec(bird.recordings[0], false);
+}
+
+function matches(bird){
+  const q=query.toLowerCase();
+  if(q && !(bird.pl+" "+bird.latin).toLowerCase().includes(q)) return false;
+  const st=bird.status||"";
+  if(filter==="L") return /L/.test(st);
+  if(filter==="P") return /P/.test(st) && !/L/.test(st);
+  if(filter==="Z") return /z/i.test(st) && !/L/.test(st) && !/P/.test(st);
+  if(filter==="audio") return (bird.recordings||[]).length>0;
+  return true;
+}
+
+function render(){
+  const list=document.getElementById("list");
+  const vis=birds.filter(matches);
+  document.getElementById("count").textContent=vis.length+" z "+birds.length+" gatunków";
+  list.innerHTML="";
+  if(!vis.length){
+    list.innerHTML='<div class="empty">Nic nie pasuje do wyszukiwania.</div>';
+    return;
+  }
+  vis.forEach(bird=>{
+    const recs=bird.recordings||[];
+    const id=String(bird.lp);
+    const note=saved[id]||{};
+    const el=document.createElement("div");
+    el.className="row";
+    el.innerHTML=
+      '<div class="head">'+
+        '<button class="play" '+(recs.length?"":"disabled")+'>▶</button>'+
+        '<div class="meta">'+
+          '<div class="bird">'+titlePl(bird.pl)+'<span>'+bird.latin+'</span></div>'+
+          '<div class="tags">'+
+            '<span class="tag">'+statusLabel(bird.status)+'</span>'+
+            (recs.length?'<span class="tag">'+recs.length+' nagrania</span>':'<span class="tag">brak nagrania</span>')+
+            '<a href="https://xeno-canto.org/species/'+encodeURIComponent(bird.latin.replace(/ /g,"-"))+'" target="_blank" rel="noreferrer">XC</a>'+
+          '</div>'+
+          '<div class="more">'+
+            '<div class="recs"></div>'+
+            '<div class="waveWrap"><canvas class="wave" width="420" height="38"></canvas><span class="time">0:00 / 0:00</span></div>'+
+            '<audio></audio>'+
+            '<label class="heard"><input type="checkbox"'+(note.heard?" checked":"")+'> przesłuchane</label>'+
+            '<input class="notes" placeholder="uwagi do głosu" value="">'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    const more=el.querySelector(".more");
+    const notes=el.querySelector(".notes");
+    notes.value=note.notes||"";
+    el.querySelector(".meta").addEventListener("click",e=>{
+      if(e.target.closest("a,button,input,canvas,label")) return;
+      el.classList.toggle("open");
+    });
+    el.querySelector(".play").addEventListener("click",()=>el.classList.add("open"));
+    el.querySelector(".heard input").onchange=e=>{
+      saved[id]={...(saved[id]||{}), heard:e.target.checked};
+      persist();
+    };
+    notes.oninput=()=>{
+      saved[id]={...(saved[id]||{}), notes:notes.value};
+      persist();
+    };
+    list.appendChild(el);
+    if(recs.length) setupPlayer(el, bird);
+  });
+}
+
+document.getElementById("search").oninput=e=>{query=e.target.value;render()};
+document.querySelectorAll(".filters button").forEach(btn=>{
+  btn.onclick=()=>{
+    filter=btn.dataset.f;
+    document.querySelectorAll(".filters button").forEach(b=>b.classList.toggle("on", b===btn));
+    render();
+  };
+});
+
+fetch("lista/birds.json")
+  .then(r=>{if(!r.ok) throw new Error("lista"); return r.json()})
+  .then(data=>{
+    birds=data.birds||[];
+    render();
+  })
+  .catch(()=>{
+    document.getElementById("list").innerHTML='<div class="empty">Nie udało się wczytać listy. Uruchom <b>python3 build_lista.py</b>.</div>';
+  });
+</script></html>
