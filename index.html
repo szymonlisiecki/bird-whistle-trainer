@@ -7,20 +7,40 @@
 <link rel="manifest" href="manifest.json">
 <style>
 body{margin:0;background:#f5f5f5;color:#222;font:14px system-ui,-apple-system,Segoe UI,sans-serif}
-.wrap{max-width:1500px;margin:20px auto;padding:0 16px}.top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.wrap{max-width:1500px;margin:20px auto;padding:0 16px}.top{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
 h1{font-size:20px;margin:0 10px 0 0}#search{width:250px;padding:8px;border:1px solid #ccc;border-radius:6px}
-.info{margin-left:auto;color:#777;font-size:12px}.box{background:white;border:1px solid #d5d5d5;border-radius:7px;overflow:auto}
-table{border-collapse:collapse;width:100%;min-width:1100px}th,td{border-bottom:1px solid #e5e5e5;padding:5px 7px;text-align:left}
+.info{color:#777;font-size:12px}.box{background:white;border:1px solid #d5d5d5;border-radius:7px;overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:1180px}th,td{border-bottom:1px solid #e5e5e5;padding:5px 7px;text-align:left}
 th{position:sticky;top:0;background:#eee;color:#555;font-size:12px;z-index:2}tr:hover td{background:#fafafa}
 .bird{font-weight:600;white-space:nowrap}.bird span{display:block;font-size:11px;font-style:italic;color:#888;font-weight:400}
 .play{width:34px;height:29px;border:1px solid #bbb;border-radius:5px;background:#fff;cursor:pointer}.play:hover{background:#eee}
-input,select{height:29px;width:100%;border:1px solid transparent;background:transparent;border-radius:4px;padding:3px 6px;font:inherit;box-sizing:border-box}
-input:hover,input:focus,select:hover,select:focus{border-color:#bbb;background:#fff;outline:none}
+input:not([type=checkbox]),select{height:29px;width:100%;border:1px solid transparent;background:transparent;border-radius:4px;padding:3px 6px;font:inherit;box-sizing:border-box}
+input:not([type=checkbox]):hover,input:not([type=checkbox]):focus,select:hover,select:focus{border-color:#bbb;background:#fff;outline:none}
+textarea{width:100%;min-height:52px;resize:vertical;border:1px solid transparent;background:transparent;border-radius:4px;padding:5px 6px;font:inherit;box-sizing:border-box;line-height:1.35}
+textarea:hover,textarea:focus{border-color:#bbb;background:#fff;outline:none}
+.known{width:42px;text-align:center;vertical-align:middle}
+th.known{color:#2f9e44}
+.known input{appearance:none;-webkit-appearance:none;width:22px;height:22px;margin:0;padding:0;border:2px solid #3cb85a;border-radius:6px;background:#fff;cursor:pointer;display:inline-block;vertical-align:middle}
+.known input:checked{background:#2f9e44 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='white' d='M6.2 11.2 2.8 7.8l1.4-1.4 2 2 5.6-5.6 1.4 1.4z'/></svg>") center/12px no-repeat;border-color:#2f9e44}
+tr.can td{background:#f3fbf5}
+tr.can:hover td{background:#e8f6ec}
+.sync{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sync button,.syncPanel button{height:32px;border:1px solid #bbb;border-radius:6px;background:#fff;cursor:pointer;padding:0 12px;font:inherit}
+.sync button:hover,.syncPanel button:hover{background:#f3f3f3}
+.syncPanel{background:#fff;border:1px solid #d5d5d5;border-radius:7px;padding:12px 14px;margin:0 0 12px}
+.syncPanel[hidden]{display:none}
+.syncLead{margin:0 0 10px;color:#555;font-size:13px;line-height:1.45}
+.syncRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.syncRow input{flex:1;min-width:180px;width:auto;height:32px;border:1px solid #ccc;background:#fff}
+.syncLink{font-size:12px;color:#555;word-break:break-all;margin:8px 0 0}
+.syncExtra{margin-top:10px}
+.syncExtra summary{cursor:pointer;color:#666;font-size:12px}
+.syncExtra textarea{min-height:90px;margin:8px 0;border:1px solid #ddd;background:#fff}
 
 .audioCell{min-width:275px}.waveWrap{display:inline-flex;vertical-align:middle;align-items:center;gap:7px;margin-left:5px}
 .wave{width:220px;height:38px;border:1px solid #ddd;border-radius:4px;background:#fafafa;cursor:pointer;display:block}
 .time{font-size:10px;color:#777;width:68px;white-space:nowrap}
-td:nth-child(3){min-width:310px}td:nth-child(4){min-width:220px}td:nth-child(5){min-width:300px}td:nth-child(6){min-width:120px}
+td:nth-child(4){min-width:280px}td:nth-child(5){min-width:260px}td:nth-child(6){min-width:240px}td:nth-child(7){min-width:120px}
 a{color:#555}.foot{padding-top:8px;color:#777;font-size:12px}
 td.audioCell{white-space:nowrap}
 .player{display:flex;align-items:center}
@@ -45,164 +65,208 @@ td.audioCell{white-space:nowrap}
 </style>
 <div class="wrap"><div class="top"><h1>🐦 Bird Whistle Trainer</h1>
 <nav class="tabs"><a class="on" href="index.html">Gwizdy</a><a href="lista.html">Lista Polski</a></nav>
-<input id="search" placeholder="Szukaj ptaka…"><div class="info">zapis automatyczny</div></div>
-<div class="box"><table><thead><tr><th>Ptak</th><th>▶</th><th>Whistle'e</th><th>Pattern</th><th>Uwagi</th><th>Status</th><th>XC</th></tr></thead><tbody><tr data-search="Strzyżyk Troglodytes troglodytes">
+<input id="search" placeholder="Szukaj ptaka…">
+<div class="sync"><button type="button" id="syncBtn">Telefon</button><span id="syncState" class="info">zapis lokalny</span></div>
+</div>
+<div id="syncPanel" class="syncPanel" hidden>
+<p class="syncLead">Bez logowania. Włącz sync na komputerze, skopiuj link i otwórz go na telefonie. Notatki z tej przeglądarki wejdą tam same i potem będą się dogrywać.</p>
+<div class="syncRow">
+<button type="button" id="syncOn">Włącz sync</button>
+<button type="button" id="syncCopy">Kopiuj link</button>
+<button type="button" id="syncOff" hidden>Odłącz</button>
+</div>
+<form id="syncJoin" class="syncRow">
+<input id="syncCode" placeholder="wklej kod albo link z drugiego urządzenia" autocomplete="off">
+<button type="submit">Połącz</button>
+</form>
+<p id="syncLink" class="syncLink"></p>
+<p id="syncMsg" class="kitNote"></p>
+<details class="syncExtra">
+<summary>Kopia zapasowa (wklej dane z przeglądarki)</summary>
+<textarea id="syncPaste" rows="5" placeholder="Wklej tu JSON z localStorage albo eksport"></textarea>
+<div class="syncRow">
+<button type="button" id="syncExport">Kopiuj dane</button>
+<button type="button" id="syncImport">Wczytaj wklejone</button>
+</div>
+</details>
+</div>
+<div class="box"><table><thead><tr><th class="known" title="Umiem">✓</th><th>Ptak</th><th>▶</th><th>Whistle'e</th><th>Pattern</th><th>Uwagi</th><th>Status</th><th>XC</th></tr></thead><tbody><tr data-search="Strzyżyk Troglodytes troglodytes">
+<td class="known"><input type="checkbox" data-xc="913172" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Strzyżyk<span>Troglodytes troglodytes</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="913172">▶</button><audio preload="metadata" src="audio/913172.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="913172" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="913172" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="913172" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="913172" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="913172" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/913172">XC913172</a></td>
 </tr><tr data-search="Wilga Oriolus oriolus">
+<td class="known"><input type="checkbox" data-xc="1023757" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Wilga<span>Oriolus oriolus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="1023757">▶</button><audio preload="metadata" src="audio/1023757.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="1023757" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="1023757" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="1023757" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="1023757" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="1023757" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/1023757">XC1023757</a></td>
 </tr><tr data-search="Szczygieł Carduelis carduelis">
+<td class="known"><input type="checkbox" data-xc="819266" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Szczygieł<span>Carduelis carduelis</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="819266">▶</button><audio preload="metadata" src="audio/819266.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="819266" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="819266" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="819266" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="819266" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="819266" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/819266">XC819266</a></td>
 </tr><tr data-search="Płomykówka Tyto alba">
+<td class="known"><input type="checkbox" data-xc="1023248" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Płomykówka<span>Tyto alba</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="1023248">▶</button><audio preload="metadata" src="audio/1023248.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="1023248" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="1023248" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="1023248" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="1023248" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="1023248" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/1023248">XC1023248</a></td>
 </tr><tr data-search="Głuszec Tetrao urogallus">
+<td class="known"><input type="checkbox" data-xc="877539" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Głuszec<span>Tetrao urogallus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="877539">▶</button><audio preload="metadata" src="audio/877539.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="877539" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="877539" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="877539" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="877539" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="877539" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/877539">XC877539</a></td>
 </tr><tr data-search="Wodnik Rallus aquaticus">
+<td class="known"><input type="checkbox" data-xc="980550" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Wodnik<span>Rallus aquaticus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="980550">▶</button><audio preload="metadata" src="audio/980550.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="980550" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="980550" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="980550" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="980550" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="980550" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/980550">XC980550</a></td>
 </tr><tr data-search="Kulczyk Serinus serinus">
+<td class="known"><input type="checkbox" data-xc="744186" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Kulczyk<span>Serinus serinus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="744186">▶</button><audio preload="metadata" src="audio/744186.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="744186" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="744186" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="744186" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="744186" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="744186" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/744186">XC744186</a></td>
 </tr><tr data-search="Nur czarnoszyi Gavia arctica">
+<td class="known"><input type="checkbox" data-xc="610925" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Nur czarnoszyi<span>Gavia arctica</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="610925">▶</button><audio preload="metadata" src="audio/610925.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="610925" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="610925" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="610925" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="610925" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="610925" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/610925">XC610925</a></td>
 </tr><tr data-search="Sroka Pica pica">
+<td class="known"><input type="checkbox" data-xc="919248" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Sroka<span>Pica pica</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="919248">▶</button><audio preload="metadata" src="audio/919248.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="919248" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="919248" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="919248" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="919248" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="919248" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/919248">XC919248</a></td>
 </tr><tr data-search="Dzięcioł zielonosiwy Picus canus">
+<td class="known"><input type="checkbox" data-xc="707236" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Dzięcioł zielonosiwy<span>Picus canus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="707236">▶</button><audio preload="metadata" src="audio/707236.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="707236" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="707236" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="707236" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="707236" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="707236" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/707236">XC707236</a></td>
 </tr><tr data-search="Kulik wielki Numenius arquata">
+<td class="known"><input type="checkbox" data-xc="896531" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Kulik wielki<span>Numenius arquata</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="896531">▶</button><audio preload="metadata" src="audio/896531.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="896531" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="896531" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="896531" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="896531" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="896531" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/896531">XC896531</a></td>
 </tr><tr data-search="Słowik szary Luscinia luscinia">
+<td class="known"><input type="checkbox" data-xc="930014" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Słowik szary<span>Luscinia luscinia</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="930014">▶</button><audio preload="metadata" src="audio/930014.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="930014" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="930014" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="930014" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="930014" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="930014" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/930014">XC930014</a></td>
 </tr><tr data-search="Zaroślówka Acrocephalus dumetorum">
+<td class="known"><input type="checkbox" data-xc="569385" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Zaroślówka<span>Acrocephalus dumetorum</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="569385">▶</button><audio preload="metadata" src="audio/569385.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="569385" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="569385" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="569385" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="569385" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="569385" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/569385">XC569385</a></td>
 </tr><tr data-search="Kszyk Gallinago gallinago">
+<td class="known"><input type="checkbox" data-xc="614529" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Kszyk<span>Gallinago gallinago</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="614529">▶</button><audio preload="metadata" src="audio/614529.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="614529" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="614529" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="614529" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="614529" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="614529" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/614529">XC614529</a></td>
 </tr><tr data-search="Zaganiacz Hippolais icterina">
+<td class="known"><input type="checkbox" data-xc="809739" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Zaganiacz<span>Hippolais icterina</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="809739">▶</button><audio preload="metadata" src="audio/809739.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="809739" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="809739" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="809739" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="809739" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="809739" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/809739">XC809739</a></td>
 </tr><tr data-search="Brzegówka Riparia riparia">
+<td class="known"><input type="checkbox" data-xc="727582" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Brzegówka<span>Riparia riparia</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="727582">▶</button><audio preload="metadata" src="audio/727582.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="727582" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="727582" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="727582" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="727582" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="727582" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/727582">XC727582</a></td>
 </tr><tr data-search="Ostrygojad Haematopus ostralegus">
+<td class="known"><input type="checkbox" data-xc="824414" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Ostrygojad<span>Haematopus ostralegus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="824414">▶</button><audio preload="metadata" src="audio/824414.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div><div class="player"><button class="play" data-xc="824427">▶</button><audio preload="metadata" src="audio/824427.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="824414" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="824414" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="824414" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="824414" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="824414" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/824414">XC824414</a><br><a target="_blank" href="https://xeno-canto.org/824427">XC824427</a></td>
 </tr><tr data-search="Mewa siwa Larus canus">
+<td class="known"><input type="checkbox" data-xc="1167643" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Mewa siwa<span>Larus canus</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="1167643">▶</button><audio preload="metadata" src="audio/1167643.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div><div class="player"><button class="play" data-xc="575730">▶</button><audio preload="metadata" src="audio/575730.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="1167643" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="1167643" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="1167643" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="1167643" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="1167643" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/1167643">XC1167643</a><br><a target="_blank" href="https://xeno-canto.org/575730">XC575730</a></td>
 </tr><tr data-search="Bielik Haliaeetus albicilla">
+<td class="known"><input type="checkbox" data-xc="779724" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Bielik<span>Haliaeetus albicilla</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="779724">▶</button><audio preload="metadata" src="audio/779724.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="779724" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="779724" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="779724" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="779724" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="779724" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/779724">XC779724</a></td>
 </tr><tr data-search="Czapla siwa Ardea cinerea">
+<td class="known"><input type="checkbox" data-xc="1104143" data-k="known" title="Umiem" aria-label="Umiem"></td>
 <td class="bird">Czapla siwa<span>Ardea cinerea</span></td>
 <td class="audioCell"><div class="player"><button class="play" data-xc="1104143">▶</button><audio preload="metadata" src="audio/1104143.mp3"></audio><span class="waveWrap"><canvas class="wave" width="220" height="38"></canvas><span class="time">0:00 / 0:00</span></span></div></td>
 <td><input data-xc="1104143" data-k="whistles" list="whistleKit" placeholder="np. Seagull + Slizzer"></td>
-<td><input data-xc="1104143" data-k="pattern" placeholder="A → B → C"></td>
+<td><textarea data-xc="1104143" data-k="pattern" placeholder="A → B → C" rows="2"></textarea></td>
 <td><input data-xc="1104143" data-k="notes" placeholder="fragment / rytm / uwagi"></td>
 <td><select data-xc="1104143" data-k="status"><option>Do zrobienia</option><option>W trakcie</option><option>Gotowe</option></select></td>
 <td><a target="_blank" href="https://xeno-canto.org/1104143">XC1104143</a></td>
@@ -219,9 +283,41 @@ td.audioCell{white-space:nowrap}
 <datalist id="whistleKit"></datalist>
 </div>
 <div class="foot">MP3 są lokalne w folderze <b>audio/</b>. Pobierz je przez <b>download.py</b>.</div></div>
+<script src="sync.js"></script>
 <script>
-const key="bird-whistle-local-v3", data=JSON.parse(localStorage.getItem(key)||"{}");
-function save(){localStorage.setItem(key,JSON.stringify(data))}
+const data=BirdSync.trainer;
+let kit=BirdSync.kit;
+let applying=false;
+function now(){ return Date.now(); }
+function save(){
+  if(applying) return;
+  BirdSync.saveTrainer();
+}
+function saveKit(){ BirdSync.saveKit(); }
+function markRow(xc){
+  (data[xc]??={});
+  data[xc].t=now();
+}
+function grow(el){
+  el.style.height="auto";
+  el.style.height=Math.min(240, Math.max(52, el.scrollHeight))+"px";
+}
+function fillFields(){
+  applying=true;
+  document.querySelectorAll("tbody tr").forEach(tr=>{
+    const xc=tr.querySelector("[data-xc]").dataset.xc;
+    const d=data[xc]||{};
+    tr.classList.toggle("can", !!d.known);
+    tr.querySelectorAll("[data-k]").forEach(el=>{
+      if(el.type==="checkbox") el.checked=!!d.known;
+      else{
+        el.value=d[el.dataset.k]||"";
+        if(el.dataset.k==="pattern") grow(el);
+      }
+    });
+  });
+  applying=false;
+}
 function fmt(sec){
   if(!isFinite(sec)||sec<0) return "0:00";
   const m=Math.floor(sec/60), s=Math.floor(sec%60).toString().padStart(2,"0");
@@ -251,11 +347,26 @@ async function pumpWave(){
 
 let lastWhistleInput=null;
 document.querySelectorAll("tbody tr").forEach(tr=>{
-  const xc=tr.querySelector("[data-xc]").dataset.xc, d=data[xc]||{};
+  const xc=tr.querySelector("[data-xc]").dataset.xc;
   tr.querySelectorAll("[data-k]").forEach(el=>{
-    el.value=d[el.dataset.k]||"";
-    el.oninput=()=>{(data[xc]??={})[el.dataset.k]=el.value;save()};
-    if(el.dataset.k==="whistles") el.addEventListener("focus",()=>lastWhistleInput=el);
+    if(el.type==="checkbox"){
+      el.onchange=()=>{
+        if(applying) return;
+        (data[xc]??={}).known=el.checked;
+        markRow(xc);
+        tr.classList.toggle("can", el.checked);
+        save();
+      };
+    }else{
+      el.oninput=()=>{
+        if(applying) return;
+        (data[xc]??={})[el.dataset.k]=el.value;
+        markRow(xc);
+        if(el.dataset.k==="pattern") grow(el);
+        save();
+      };
+      if(el.dataset.k==="whistles") el.addEventListener("focus",()=>lastWhistleInput=el);
+    }
   });
   const players=tr.querySelectorAll(".player");
   (players.length?players:[tr]).forEach(root=>{
@@ -346,29 +457,8 @@ document.querySelectorAll("tbody tr").forEach(tr=>{
     }
   });
 });
+fillFields();
 
-const KIT_KEY="bird-whistle-kit-v1";
-const DEFAULT_KIT=[
-  "Ralik whistle",
-  "Ralik whistle + lip oscillation",
-  "Ralik whistle: stretched",
-  "Seagull whistle",
-  "Slizzer roll whistle",
-  "Hollow whistle",
-  "Tooth whistle",
-  "Inward tooth whistle",
-  "Recorder whistle",
-  "Poh snare"
-];
-function loadKit(){
-  try{
-    const raw=JSON.parse(localStorage.getItem(KIT_KEY)||"null");
-    if(Array.isArray(raw) && raw.every(x=>typeof x==="string")) return raw.filter(x=>x.trim());
-  }catch(e){}
-  return DEFAULT_KIT.slice();
-}
-let kit=loadKit();
-function saveKit(){ localStorage.setItem(KIT_KEY, JSON.stringify(kit)); }
 function renderKit(){
   const listEl=document.getElementById("kitList");
   const dl=document.getElementById("whistleKit");
@@ -440,4 +530,11 @@ document.getElementById("search").oninput=e=>{
   const q=e.target.value.toLowerCase();
   document.querySelectorAll("tbody tr").forEach(r=>r.style.display=r.dataset.search.toLowerCase().includes(q)?"":"none");
 };
+
+BirdSync.bindUI({
+  onRemote(){
+    fillFields();
+    if(typeof renderKit==="function") renderKit();
+  }
+});
 </script></html>
